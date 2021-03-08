@@ -1,0 +1,69 @@
+(run){
+OL_PREFIX=/data6/Users/joonblee/SHERPA/GeneratorTools/external/OpenLoops-2.1.0
+OUTPUT=2
+
+  % general settings
+  %EVENTS 1M; ERROR 0.1;
+
+  % various settings given via command line
+  BEAM_1=2212; BEAM_ENERGY_1=6500;
+  BEAM_2=2212; BEAM_ENERGY_2=6500;
+  MAX_PROPER_LIFETIME=10.0;
+  HEPMC_TREE_LIKE=1;
+  PRETTY_PRINT=Off;
+  OVERWEIGHT_THRESHOLD=10
+  PP_HPSMODE=0
+  HEPMC_USE_NAMED_WEIGHTS=1
+  ASSOCIATED_CONTRIBUTIONS_VARIATIONS EW EW|LO1 EW|LO1|LO2;
+
+  % scales, tags for scale variations
+  FSF:=1; RSF:=1; QSF:=1;
+  SCLDEF:=Abs2(p[2]+p[3]+p[4]);
+  SCALES VAR{FSF*SCLDEF}{RSF*SCLDEF}{QSF*SCLDEF};
+
+  % me generator settings
+  ME_SIGNAL_GENERATOR Comix Amegic LOOPGEN;
+  EVENT_GENERATION_MODE Weighted;
+  LOOPGEN:=OpenLoops;
+  NLO_SMEAR_THRESHOLD 1;
+  NLO_SMEAR_POWER 2;
+
+  % particle properties (ME widths need to be zero if external)
+  MASSIVE[5] 1;
+  MASSIVE[15] 1;
+  STABLE[6]=0; WIDTH[6]=0;
+  STABLE[25]=0; WIDTH[25]=0;
+
+  % hard decays setup, specify allowed decay channels
+  % h->bb
+  HARD_DECAYS On;
+  HDH_WIDTH[6,24,5]=1.32;
+  HDH_WIDTH[-6,-24,-5]=1.32;
+  HDH_STATUS[25,5,-5]=2;
+  HDH_BR_WEIGHTS 0;
+
+  % OL_Parameters
+  OL_PARAMETERS=preset=2 write_parameters=1
+
+  % PDF/scale weights
+  PDF_LIBRARY LHAPDFSherpa;
+  USE_PDF_ALPHAS=1;
+  PDF_SET NNPDF30_nlo_as_0118;
+
+  % tags for process setup
+  QCUT:=30.;
+  LJET:=3; NJET:=0;
+
+}(run);
+
+(processes){
+  Process 93 93 -> 6 -6 25;
+  Order (*,1);
+  CKKW sqr(QCUT/E_CMS);
+  NLO_QCD_Mode MC@NLO;
+  Loop_Generator LOOPGEN;
+  ME_Generator Amegic;
+  RS_ME_Generator Comix;
+  Associated_Contributions EW|LO1|LO2 {LJET};
+  End process;
+}(processes);
