@@ -1,0 +1,101 @@
+(run){
+OL_PREFIX=/data6/Users/joonblee/SHERPA/GeneratorTools/external/OpenLoops-2.1.0
+OUTPUT=2
+    BEAM_1 2212; BEAM_ENERGY_1 6500.;
+    BEAM_2 2212; BEAM_ENERGY_2 6500.;
+    MAX_PROPER_LIFETIME=10.0
+    HEPMC_TREE_LIKE=1
+    PRETTY_PRINT=Off
+    OVERWEIGHT_THRESHOLD=10
+    PP_HPSMODE=0
+    HEPMC_USE_NAMED_WEIGHTS=1
+    ASSOCIATED_CONTRIBUTIONS_VARIATIONS EW EW|LO1 EW|LO1|LO2;
+
+    % tags and settings for scale definitions
+    FSF:=1.0; RSF:=1.0; QSF:=1.0;
+    SCALES STRICT_METS{FSF*MU_F2}{RSF*MU_R2}{QSF*MU_Q2};
+
+    EW_SCHEME=0
+    SIN2THETAW=0.2222465
+
+    MASS[6]=172.5
+    WIDTH[6]=1.4915
+    HDH_WIDTH[6,24,5]=1.4915
+    HDH_WIDTH[-6,-24,-5]=1.4915
+
+    MASS[15]=1.777
+    WIDTH[15]=2.26735e-12 # HS
+
+    MASS[23]=91.188
+    WIDTH[23]=2.441404
+    HDH_WIDTH[23,1,-1]=0.3828 # HS
+    HDH_WIDTH[23,2,-2]=0.2980
+    HDH_WIDTH[23,3,-3]=0.3828
+    HDH_WIDTH[23,4,-4]=0.2980
+    HDH_WIDTH[23,5,-5]=0.3828
+    HDH_WIDTH[23,11,-11]=0.0840
+    HDH_WIDTH[23,12,-12]=0.1663
+    HDH_WIDTH[23,13,-13]=0.0840
+    HDH_WIDTH[23,14,-14]=0.1663
+    HDH_WIDTH[23,15,-15]=0.0840
+    HDH_WIDTH[23,16,-16]=0.1663
+
+    MASS[24]=80.419002
+    WIDTH[24]=2.0476
+    HDH_WIDTH[24,2,-1]=0.6825899836
+    HDH_WIDTH[24,4,-3]=0.6825899836
+    HDH_WIDTH[24,12,-11]=0.2275282882
+    HDH_WIDTH[24,14,-13]=0.2275282882
+    HDH_WIDTH[24,16,-15]=0.2273634564
+    HDH_WIDTH[-24,-2,1]=0.6825899836
+    HDH_WIDTH[-24,-4,3]=0.6825899836
+    HDH_WIDTH[-24,-12,11]=0.2275282882
+    HDH_WIDTH[-24,-14,13]=0.2275282882
+    HDH_WIDTH[-24,-16,15]=0.2273634564
+
+
+    # On 't -> b W+, W+ -> qq'
+    HDH_STATUS[24,12,-11]=0
+    HDH_STATUS[24,14,-13]=0
+    HDH_STATUS[24,16,-15]=0
+    # On 'tbar -> bbar W-, W- -> mu- nu'
+    HDH_STATUS[-24,-14,13]=2
+
+    OL_PARAMETERS=preset=2 write_parameters=1
+    PDF_LIBRARY=LHAPDFSherpa
+    USE_PDF_ALPHAS=1
+    PDF_SET=NNPDF31_nnlo_as_0118
+
+    # top/W decays
+    HARD_DECAYS On; HARD_SPIN_CORRELATIONS 1;
+    STABLE[6] = 0; WIDTH[6]=0.0;
+    # STABLE[23] = 0;
+    STABLE[24] = 0; WIDTH[24]=0;
+    ACTIVE[25] = 0;
+
+    EXCLUSIVE_CLUSTER_MODE 1;
+
+    # merging setup
+    QCUT:=30.;
+    LJET:=3; NJET:=0;
+
+    ME_SIGNAL_GENERATOR Comix Amegic OpenLoops;
+    INTEGRATION_ERROR=0.05;
+
+}(run)
+(processes){
+    Process 93 93 -> 6 -6 -24 93{NJET};
+    Order (*,1);
+    CKKW sqr(QCUT/E_CMS);
+    NLO_QCD_Mode MC@NLO {LJET};
+    ME_Generator Amegic {LJET};
+    RS_ME_Generator Comix {LJET};
+    Loop_Generator OpenLoops {LJET};
+    Associated_Contributions EW|LO1|LO2 {LJET};
+    End process;
+}(processes)
+(selector){
+  Mass 11 -11 30 E_CMS;
+  Mass 13 -13 30 E_CMS;
+  Mass 15 -15 30 E_CMS;
+}(selector)
